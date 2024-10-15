@@ -8,5 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 01-th Step
-        run: |
-          echo ${{ secrets.SECRET_DATA }}
+        run: echo ${{ secrets.SECRET_DATA }}
