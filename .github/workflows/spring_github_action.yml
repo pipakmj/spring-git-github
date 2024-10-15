@@ -1,0 +1,12 @@
+name: spring project CICD
+on:
+  push:
+   branches:
+    - main
+jobs:
+ Spring-Deploy-Process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 01-th Step
+        run: |
+          echo ${{ secrets.SECRET_DATA }}
