@@ -8,4 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 01-th Step
-        run: echo ${{ secrets.SECRET_DATA }}
+        run: echo "Access.."
+      - name: ssh 접속
+        uses: applebody/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_IP }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            pwd
+            ls -al
