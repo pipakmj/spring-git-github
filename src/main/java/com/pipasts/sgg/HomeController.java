@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
 	@GetMapping("/")
 	public String Home() {
-		return "AWS server pull test...";
+		return "AWS server use-SCP test...";
 	}
 }
