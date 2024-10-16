@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 01-th Step
-        run: echo "Access.."
+        run: echo "Access..."
       - name: ssh 접속
         uses: appleboy/ssh-action@v1.0.3
         with:
