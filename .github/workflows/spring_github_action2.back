@@ -1,0 +1,25 @@
+name: spring project CICD
+on:
+  push:
+   branches:
+    - main
+jobs:
+ Spring-Deploy-Process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 01-th Step
+        run: echo "Access..."
+      - name: ssh 접속
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_IP }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            cd /home/ubuntu/spring-git-github
+            git pull origin main
+            chmod 777 gradlew
+            sudo ./gradlew clean build
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 & 

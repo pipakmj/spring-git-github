@@ -7,8 +7,27 @@ jobs:
  Spring-Deploy-Process:
     runs-on: ubuntu-latest
     steps:
-      - name: 01-th Step
-        run: echo "Access..."
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up JDK 21
+        uses: actions/setup-java@v1
+        with:
+          java-version: 21
+      - name: Grant execute permission for Gradlew
+        run: chomod 777 ./gradlew
+      - name: Build project
+        run: ./gradlew build
+      - name: Check-*.jar File-Exist
+        run: ls -al ./build/libs
+      - name: SCP로 EC2에 빌드된 파일 전송하기
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST_IP }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./build/libs/*SNAPSHOT.jar
+          target: /home/ubuntu/spring-git-github
+          overwrite: true
       - name: ssh 접속
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -17,9 +36,10 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
-            cd /home/ubuntu/spring-git-github
-            git pull origin main
-            chmod 777 gradlew
-            sudo ./gradlew clean build
+            echo "Service Run.."
+            mkdir -p /home/ubuntu/spring-git-github/runing || true
+            mv /home/ubuntu/spring-git-github/target/build/libs/cicd_test-0.0.1-SNAPSHOT.jar /home/ubuntu/cicd_test/runing/project.jar
+            cd /home/ubuntu/spring-git-github/runing
             sudo fuser -k -n tcp 8080 || true
-            nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 & 
+            nohup java -jar project.jar > ./output.log 2>&1 &
+            rm -rf /home/ubuntu/spring-git-github/target
