@@ -43,4 +43,4 @@ jobs:
           --application-name codedeploy-application
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name codedeploy-application-deploy-group
-          --s3-location bucket=pipakmj-codedeploy-s3-bucket,bundleType=tgz,key=GITHUB_SHA.tar.gz
+          --s3-location bucket=pipakmj-codedeploy-s3-bucket,bundleType=tgz,key=$GITHUB_SHA.tar.gz
