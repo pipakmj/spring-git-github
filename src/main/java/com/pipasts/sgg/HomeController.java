@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
 	@GetMapping("/")
 	public String Home() {
-		return "CICD Working sts-project..:::: codedeploytest";
+		return "CICD Working sts-project..:::: docker test 02";
 	}
 }
