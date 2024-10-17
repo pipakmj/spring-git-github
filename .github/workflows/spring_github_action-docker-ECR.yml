@@ -28,6 +28,8 @@ jobs:
       - name: ECR에 로그인	
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+      - name: file check
+        run: ls -al
       - name: Docker image build
         run: docker build -t spring-git-github .
       - name: Docker Image Tag
