@@ -37,7 +37,7 @@ jobs:
       - name: 압축하기
         run: tar -czvf $GITHUB_SHA.tar.gz appspec.yml scripts
       - name: S3에 프로젝트 폴더 업로드
-        run: aws s3 cp --reqion ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://spring-git-github/$GITHUB_SHA.tar.gz
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://spring-git-github/$GITHUB_SHA.tar.gz
       - name: CodeDeploy EC2배포
         run: aws deploy create-deployment
           --application-name codedeploy-application
