@@ -1,0 +1,48 @@
+name: spring project CICD
+on:
+  push:
+   branches:
+    - main
+jobs:
+ Spring-Deploy-Process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v1
+        with:
+          java-version: 21
+      - name: application.yml 파일 만들기
+        run: echo "${{ secrets.PROJECT_APPLICATION_YML }}" > ./src/main/resources/application.yml
+      - name: Grant execute permission for Gradlew
+        run: chmod +x ./gradlew
+      - name: Build project
+        run: ./gradlew clean build
+      - name: AWS Resource 접근 credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: ECR에 로그인	
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Docker image
+        run: docker build -t spring-git-github
+      - name: Docker Image Tag
+        run: docker tag spring-git-github ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
+      - name: ECR Docker Image Push
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
+      - name: ssh 접속
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_IP }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            docker stop spring-git-github || true
+            docker rm spring-git-github || true
+            docker pull ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
+            docker run -d --name spring-git-github -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
