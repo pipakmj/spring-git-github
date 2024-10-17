@@ -28,23 +28,19 @@ jobs:
       - name: ECR에 로그인	
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      - name: file check 01
-        run: ls -al
       - name: Docker image build
         run: docker build -t spring-git-github .
       - name: Docker Image Tag
         run: docker tag spring-git-github ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
       - name: ECR Docker Image Push
         run: docker push ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
-      - name: ssh 접속
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST_IP }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script_stop: true
-          script: |
-            docker stop spring-git-github || true
-            docker rm spring-git-github || true
-            docker pull ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
-            docker run -d --name spring-git-github -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
+      - name: 압축하기
+        run: tar -czvf $GITHUB_SHA.tar.gz appspec.yml scripts
+      - name: S3에 프로젝트 폴더 업로드
+        run: aws s3 cp --reqion ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://spring-git-github/$GITHUB_SHA.tar.gz
+      - name: CodeDeploy EC2배포
+        run: aws deploy create-deployment
+          --application-name codedeploy-application
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name codedeploy-application-deploy-group
+          --s3-location bucket=pipakmj-codedeploy-s3-bucket,bundleType=tgz,key=GITHUB_SHA.tar.gz
