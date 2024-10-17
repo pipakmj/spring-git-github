@@ -29,7 +29,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
       - name: Docker image
-        run: docker build -f spring-git-github
+        run: docker build -t spring-git-github .
       - name: Docker Image Tag
         run: docker tag spring-git-github ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
       - name: ECR Docker Image Push
