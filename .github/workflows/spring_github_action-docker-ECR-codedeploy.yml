@@ -35,7 +35,7 @@ jobs:
       - name: ECR Docker Image Push
         run: docker push ${{ steps.login-ecr.outputs.registry }}/spring-git-github:latest
       - name: 압축하기
-        run: tar -czvf $GITHUB_SHA.tar.gz code-deploy/appspec.yml code-deploy/scripts
+        run: tar -czvf $GITHUB_SHA.tar.gz code-deploy
       - name: S3에 프로젝트 폴더 업로드01
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://pipakmj-codedeploy-s3-bucket/$GITHUB_SHA.tar.gz
       - name: CodeDeploy EC2배포
